@@ -1,187 +1,138 @@
+
 # ✋ Gesture Control Game
 
-This project implements a gesture-controlled game using machine learning for gesture recognition. Players can control the game using hand gestures captured through their webcam.
+This project implements a gesture-controlled game powered by a machine learning model trained on the HAGRID dataset. Players control the game using **hand gestures** captured in real-time through their **webcam**. The gestures are classified by a LightGBM model, and mapped to game directions — bringing a touchless, intuitive interaction experience to life.
+
+## 🎯 Project Objective
+
+The objective of this project is to build and deploy a **real-time gesture classification system** that integrates with a simple maze game, allowing players to navigate using predefined hand gestures. The system is optimized for fast predictions and deployed in a production environment using **FastAPI**.
+
+---
 
 ## 🚀 Deployment
 
-The live API is deployed on **Railway** and available at:
+✅ The entire system — including the trained model, preprocessing pipeline, and FastAPI server — is deployed on an **AWS EC2 instance**.
 
-📎 **[Production URL](https://mlops-final-project-production-2c88.up.railway.app/docs)**
+📎 **Production API Endpoint**: http://34.227.25.110.:8000
+
+📹 The game runs in the browser, communicating with the EC2-hosted API for gesture predictions.
+
+---
+
+## 🧠 ML Model Details
+
+- **Model**: LightGBM Classifier
+- **Input**: 63 features extracted using MediaPipe hand landmarks (x, y normalized, z raw)
+- **Label Mapping**:
+```python
+custom_label_map = {
+  "one": "up",
+  "two": "right",
+  "three2": "left",
+  "dislike": "down"
+}
+```
+- **Output**: `up`, `down`, `left`, `right`, or `unknown`
+- **Preprocessing**: Normalization using saved transformation pipeline (`normalize.pkl`)
 
 ---
 
 ## 🌳 Git Branching Strategy
 
-- **`master`**: This is the **production branch**, representing the deployed and stable state of the API. All final changes are merged here after testing.
-- **`research`**: This branch contains **experimentation code** including model training, EDA, preprocessing logic, and MLflow tracking.
-- **`api`**: This branch hosts the **FastAPI backend**, Prometheus integration, and other deployable code.
-
-I forked the original MLOps course repository and began development using the `master` branch as my stable production line. Feature development and model iterations were done in `research`, while API and system monitoring infrastructure were developed in the `api` branch.
-
----
-
-## 🧠 Project Objective
-
-The objective of this project is to build a production-grade pipeline for classifying hand gestures using preprocessed MediaPipe hand landmarks.
+- `main`: Production-ready and deployed code
+- `research`: Model training, EDA, and experimentation
+- `Production`: FastAPI app, monitoring infrastructure, and Docker configs
 
 ---
 
 ## 🛠 Tech Stack
 
 - **Python 3.10**
-- **FastAPI** – API for real-time gesture classification.
-- **XGBoost** – Classification model.
-- **MediaPipe** – For extracting 3D hand landmarks.
-- **MLflow** – Model tracking and experiment logging.
-- **Prometheus + Grafana** – Monitoring metrics (e.g., latency, requests).
-- **Docker + Docker Compose** – For containerized deployment.
-- **Railway** – Cloud deployment.
-
----
-
-## 🚀 Quick Start
-
-1. Install the Live Server extension in VS Code:
-   - Open VS Code
-   - Go to Extensions (Ctrl+Shift+X)
-   - Search for "Live Server"
-   - Install the extension by Ritwick Dey
-
-2. Launch the project:
-   - Right-click on `index.html`
-   - Select "Open with Live Server"
-   - The game should open in your default browser at `http://localhost:5500`
-
-## 📁 Project Structure
-
-- `index.html` - Main game interface
-- `api-call.js` - ML model API integration
-- `cam.js` - Webcam handling and gesture processing
-- `keyboard.js` - Keyboard controls implementation
-- `maze.js` - Maze game logic
-- `mp.js` - Media processing utilities
-
----
-
-## 🧪 ML Model Workflow
-
-### 1. Data Preprocessing
-
-- Hand landmark normalization (based on wrist and middle fingertip).
-- Z-coordinates were **kept unnormalized**.
-- Saved to `normalized_hagrid.csv`.
-
----
-
-### 2\. Model Training
-
--   Input features: 63 values (x & y normalized, z kept raw).
-
--   Algorithm: `XGBoostClassifier`.
-
--   Labels encoded using `LabelEncoder`.
-
--   Model and encoder saved as `.pkl` files.
-
--   Logged with **MLflow** for experiment tracking.
-
----
-
-### 3\. Custom Label Mapping
-
-To simplify the final output:
-
-python
-
-Copy code
-
-`custom_label_map = {
-    "one": "left",
-    "two_up": "up",
-    "three": "down",
-    "four": "right"
-}`
-
----
-
-📦 API Functionality
---------------------
-
-### **POST /predict**
-
--   Input: JSON object containing 63 float values (MediaPipe hand landmarks).
-
--   Output: One of the following predictions:
-
-    -   `left`
-
-    -   `right`
-
-    -   `up`
-
-    -   `down`
-
-    -   `unknown`
-
-### **/metrics**
-
--   Exposes Prometheus-compatible metrics:
-
-    -   `prediction_requests_total`
-
-    -   `prediction_latency_seconds`
-
----
-
-🔁 CI/CD with GitHub Actions
-----------------------------
-
-A full **CI/CD pipeline** is implemented using **GitHub Actions**. Every push or merge to the production branch triggers:
-
--   ✅ Linting & syntax checks
-
--   ✅ API testing (via test suite)
-
--   ✅ Automatic deployment to **Railway**
-
----
-
-🐳 Run Locally with Docker Compose
-----------------------------------
-
-bash
-
-CopyEdit
-
-`git clone https://github.com/your-username/mlops-final-project.git
-cd mlops-final-project
-docker-compose up --build`
-
-Once running:
-
--   API Docs: <http://localhost:8000/docs>
-
--   Prometheus: <http://localhost:9090>
-
--   Grafana: <http://localhost:3000>
+- **LightGBM** – ML model for gesture classification
+- **MediaPipe** – Landmark extraction from webcam frames
+- **FastAPI** – Model serving with REST API
+- **Docker & Docker Compose** – Containerized deployment
+- **Prometheus & Grafana** – Monitoring and observability
+- **AWS EC2** – Production deployment
+- **HTML/JS** – Maze game logic and UI
 
 ---
 
 ## 🎮 Controls
 
-The game can be controlled through:
-- Hand gestures (via webcam)
-- Keyboard arrows (as fallback)
+You can control the maze game through:
+
+- 🖐️ Hand gestures (via webcam)
+- ⌨️ Keyboard arrow keys (fallback)
 
 ---
 
-👤 Author
----------
+## 📦 API Endpoints
 
--   **Name**: Mohamed Mohy
+### `POST /predict`
 
--   **Institute**: ITI -- Machine Learning & AI Track
+- **Input**: Image frame from webcam (multipart form)
+- **Output**: JSON with predicted direction (`up`, `down`, `left`, `right`, `unknown`)
 
--   **Year**: 2025
+### `GET /metrics`
 
+- Prometheus metrics like:
+  - `prediction_requests_total`
+  - `prediction_latency_seconds`
+
+---
+
+## 🧪 ML Model Workflow
+
+### 1. Preprocessing
+
+- MediaPipe extracts 21 landmarks (3D = 63 values)
+- Normalized (x, y), z remains raw
+
+
+### 2. Training
+
+- Model: `LightGBMClassifier`
+- Model and encoder saved as `.pkl` files
+
+
+## 🐳 Run Locally with Docker Compose
+
+```bash
+git clone https://github.com/your-username/gesture-control-game.git
+cd gesture-control-game
+docker-compose up --build
+```
+
+- **API Docs**: http://localhost:8000/docs  
+- **Prometheus**: http://localhost:9090  
+- **Grafana**: http://localhost:3000  
+
+---
+
+## 🚀 Quick Game Launch
+
+1. Open `index.html` in your browser (or use Live Server in VS Code).
+2. Allow webcam access.
+3. Perform gestures to control the maze game.
+
+---
+
+## 📈 Monitoring (Prometheus & Grafana)
+
+- Track:
+  - API usage
+  - Inference latency
+  - Request volume
+- Easily customizable dashboards available in Grafana
+
+---
+
+## 🤝 Acknowledgments
+
+- HAGRID dataset creators
+- MediaPipe by Google
+- FastAPI, Docker, Prometheus, and Grafana communities
+
+---
 
